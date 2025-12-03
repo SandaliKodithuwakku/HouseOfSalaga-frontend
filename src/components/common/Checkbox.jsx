@@ -19,11 +19,14 @@ const Checkbox = ({
         className="mt-1 h-4 w-4 text-[#8B6B47] focus:ring-[#8B6B47] border-gray-300 rounded cursor-pointer"
       />
       <label htmlFor={id} className="ml-2 text-sm text-gray-700 cursor-pointer">
-        {label}{' '}
+        {label}
         {linkText && linkTo && (
-          <Link to={linkTo} className="text-[#8B6B47] hover:underline font-medium">
-            {linkText}
-          </Link>
+          <>
+            {' '}
+            <Link to={linkTo} className="text-[#8B6B47] hover:underline font-medium">
+              {linkText}
+            </Link>
+          </>
         )}
       </label>
     </div>
