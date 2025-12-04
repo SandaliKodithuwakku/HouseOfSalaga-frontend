@@ -8,6 +8,7 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import About from './pages/About';
 
 function App() {
   return (
@@ -43,6 +44,9 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          
+          {/* About Page */}
+          <Route path="/about" element={<About />} />
           
           {/* Home Route */}
           <Route path="/" element={
