@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import About from './pages/About';
+import Blog from './pages/Blog';
 
 function App() {
   return (
@@ -47,6 +48,9 @@ function AppContent() {
           
           {/* About Page */}
           <Route path="/about" element={<About />} />
+          
+          {/* Blog Page */}
+          <Route path="/blog" element={<Blog />} />
           
           {/* Home Route */}
           <Route path="/" element={
