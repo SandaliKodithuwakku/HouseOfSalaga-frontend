@@ -11,6 +11,7 @@ import ResetPassword from './pages/ResetPassword';
 import About from './pages/About';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
+import FAQ from './pages/FAQ';
 
 function App() {
   return (
@@ -53,8 +54,12 @@ function AppContent() {
           {/* Blog Page */}
           <Route path="/blog" element={<Blog />} />
 
+          {/* Contact Page */}
           <Route path="/contact" element={<Contact />} />
-          
+
+          {/* FAQ Page */}
+          <Route path="/faq" element={<FAQ />} />
+       
           {/* Home Route */}
           <Route path="/" element={
             <div className="flex items-center justify-center min-h-[calc(100vh-120px)]">
