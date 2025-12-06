@@ -12,6 +12,7 @@ import About from './pages/About';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 function App() {
   return (
@@ -59,7 +60,10 @@ function AppContent() {
 
           {/* FAQ Page */}
           <Route path="/faq" element={<FAQ />} />
-       
+
+          {/* Privacy Policy Page */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          
           {/* Home Route */}
           <Route path="/" element={
             <div className="flex items-center justify-center min-h-[calc(100vh-120px)]">
