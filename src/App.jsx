@@ -20,6 +20,7 @@ import Cart from './pages/Cart';
 import Shipping from './pages/Shipping';
 import Checkout from './pages/Checkout';
 import OrderComplete from './pages/OrderComplete';
+import ProfileLayout from './components/layout/ProfileLayout';
 
 function App() {
   return (
@@ -75,6 +76,9 @@ function AppContent() {
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-complete" element={<OrderComplete />} />
+
+          {/* Profile Routes */}
+          <Route path="/profile" element={<ProfileLayout />}></Route>
           
         </Routes> 
       </main>

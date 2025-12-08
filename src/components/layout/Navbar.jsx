@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, ShoppingCart, User, ChevronDown, Menu, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, ShoppingCart, User, ChevronDown, Menu, X, LogOut } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import cartService from '../../services/cartService';
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      fetchCartCount();
+    }
+  }, [user]);
+
+  const fetchCartCount = async () => {
+    try {
+      const response = await cartService.getCart();
+      if (response.success) {
+        const count = response.data.cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        setCartCount(count);
+      }
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="w-full">
@@ -25,10 +54,13 @@ const Navbar = () => {
               </Link>
               
               {/* Shop Dropdown */}
-              <div className="relative">
+              <div 
+                className="relative"
+                onMouseLeave={() => setIsShopOpen(false)}
+              >
                 <button
                   onClick={() => setIsShopOpen(!isShopOpen)}
-                  onBlur={() => setTimeout(() => setIsShopOpen(false), 200)}
+                  onMouseEnter={() => setIsShopOpen(true)}
                   className="flex items-center space-x-1 text-gray-800 hover:text-amber-800 font-medium transition-colors"
                 >
                   <span>SHOP</span>
@@ -37,16 +69,32 @@ const Navbar = () => {
                 
                 {isShopOpen && (
                   <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <Link to="/products" className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800">
+                    <Link 
+                      to="/shop" 
+                      className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                      onClick={() => setIsShopOpen(false)}
+                    >
                       All Products
                     </Link>
-                    <Link to="/products/new" className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800">
+                    <Link 
+                      to="/shop?category=new" 
+                      className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                      onClick={() => setIsShopOpen(false)}
+                    >
                       New Arrivals
                     </Link>
-                    <Link to="/products/bestsellers" className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800">
+                    <Link 
+                      to="/shop?category=bestsellers" 
+                      className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                      onClick={() => setIsShopOpen(false)}
+                    >
                       Best Sellers
                     </Link>
-                    <Link to="/products/sale" className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800">
+                    <Link 
+                      to="/shop?category=sale" 
+                      className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                      onClick={() => setIsShopOpen(false)}
+                    >
                       Sale
                     </Link>
                   </div>
@@ -80,13 +128,85 @@ const Navbar = () => {
               </button>
               <Link to="/cart" className="text-gray-800 hover:text-amber-800 transition-colors relative">
                 <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-2 -right-2 bg-amber-800 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-amber-800 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
-              <Link to="/account" className="text-gray-800 hover:text-amber-800 transition-colors">
-                <User className="w-5 h-5" />
-              </Link>
+              
+              {user ? (
+                <div 
+                  className="relative"
+                  onMouseLeave={() => setIsUserMenuOpen(false)}
+                >
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    onMouseEnter={() => setIsUserMenuOpen(true)}
+                    className="flex items-center space-x-1 text-gray-800 hover:text-amber-800 transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  
+                  {isUserMenuOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                      <Link 
+                        to="/profile/orders" 
+                        className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                      <Link 
+                        to="/profile/wishlist" 
+                        className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        Wishlist
+                      </Link>
+                      <Link 
+                        to="/profile/settings" 
+                        className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        Settings
+                      </Link>
+                      {user.role === 'admin' && (
+                        <Link 
+                          to="/admin" 
+                          className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800 flex items-center gap-2 border-t border-gray-200"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link
+                    to="/login"
+                    className="text-gray-800 hover:text-amber-800 transition-colors font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="bg-amber-800 text-white px-4 py-2 rounded hover:bg-amber-900 transition-colors font-medium"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -114,16 +234,16 @@ const Navbar = () => {
                 </button>
                 {isShopOpen && (
                   <div className="pl-4 space-y-2">
-                    <Link to="/products" className="block text-gray-600 hover:text-amber-800">
+                    <Link to="/shop" className="block text-gray-600 hover:text-amber-800">
                       All Products
                     </Link>
-                    <Link to="/products/new" className="block text-gray-600 hover:text-amber-800">
+                    <Link to="/shop?category=new" className="block text-gray-600 hover:text-amber-800">
                       New Arrivals
                     </Link>
-                    <Link to="/products/bestsellers" className="block text-gray-600 hover:text-amber-800">
+                    <Link to="/shop?category=bestsellers" className="block text-gray-600 hover:text-amber-800">
                       Best Sellers
                     </Link>
-                    <Link to="/products/sale" className="block text-gray-600 hover:text-amber-800">
+                    <Link to="/shop?category=sale" className="block text-gray-600 hover:text-amber-800">
                       Sale
                     </Link>
                   </div>
@@ -134,19 +254,61 @@ const Navbar = () => {
                 <Link to="/contact" className="text-gray-800 hover:text-amber-800 font-medium">
                   CONTACT
                 </Link>
-                <div className="flex items-center space-x-6 pt-4 border-t border-gray-200">
-                  <button className="text-gray-800 hover:text-amber-800">
-                    <Search className="w-5 h-5" />
-                  </button>
-                  <Link to="/cart" className="text-gray-800 hover:text-amber-800 relative">
-                    <ShoppingCart className="w-5 h-5" />
-                    <span className="absolute -top-2 -right-2 bg-amber-800 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      0
-                    </span>
-                  </Link>
-                  <Link to="/account" className="text-gray-800 hover:text-amber-800">
-                    <User className="w-5 h-5" />
-                  </Link>
+                <div className="pt-4 border-t border-gray-200 space-y-3">
+                  <div className="flex items-center space-x-6">
+                    <button className="text-gray-800 hover:text-amber-800">
+                      <Search className="w-5 h-5" />
+                    </button>
+                    <Link to="/cart" className="text-gray-800 hover:text-amber-800 relative">
+                      <ShoppingCart className="w-5 h-5" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-amber-800 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {cartCount}
+                        </span>
+                      )}
+                    </Link>
+                  </div>
+                  
+                  {user ? (
+                    <div className="space-y-2">
+                      <Link to="/profile/orders" className="block text-gray-800 hover:text-amber-800">
+                        My Orders
+                      </Link>
+                      <Link to="/profile/wishlist" className="block text-gray-800 hover:text-amber-800">
+                        Wishlist
+                      </Link>
+                      <Link to="/profile/settings" className="block text-gray-800 hover:text-amber-800">
+                        Settings
+                      </Link>
+                      {user.role === 'admin' && (
+                        <Link to="/admin" className="block text-gray-800 hover:text-amber-800">
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left text-gray-800 hover:text-amber-800 flex items-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Link
+                        to="/login"
+                        className="block text-center text-gray-800 hover:text-amber-800 font-medium py-2 border border-gray-300 rounded"
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="block text-center bg-amber-800 text-white py-2 rounded hover:bg-amber-900 font-medium"
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
