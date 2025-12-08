@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Heart, Star, ShoppingCart } from 'lucide-react';
 import { toast } from 'react-toastify';
 import productService from '../services/productService';
+import cartService from '../services/cartService';
+import wishlistService from '../services/wishlistService';
 import api from '../services/api';
 
 const ProductDetail = () => {

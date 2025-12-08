@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, SlidersHorizontal, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import productService from '../services/productService';
+import wishlistService from '../services/wishlistService';
 
 const Shop = () => {
   const [products, setProducts] = useState([]);

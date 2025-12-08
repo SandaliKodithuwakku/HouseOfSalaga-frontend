@@ -16,7 +16,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
-
+import Cart from './pages/Cart';
+ 
 
 function App() {
   return (
@@ -66,8 +67,11 @@ function AppContent() {
           {/* Shop & Products */}
           <Route path="/shop" element={<Shop />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+
+          {/* Cart */}
+          <Route path="/cart" element={<Cart />} />
           
-        </Routes>
+        </Routes> 
       </main>
 
       {/* Conditionally render Footer */}
