@@ -13,6 +13,7 @@ import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Home from './pages/Home';
 
 function App() {
   return (
@@ -43,36 +44,22 @@ function AppContent() {
       {/* Main Content */}
       <main className="flex-grow">
         <Routes>
+          
           {/* Auth Routes */}
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           
-          {/* About Page */}
+          {/* Main Pages */}
+           
+          <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          
-          {/* Blog Page */}
           <Route path="/blog" element={<Blog />} />
-
-          {/* Contact Page */}
           <Route path="/contact" element={<Contact />} />
-
-          {/* FAQ Page */}
           <Route path="/faq" element={<FAQ />} />
-
-          {/* Privacy Policy Page */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           
-          {/* Home Route */}
-          <Route path="/" element={
-            <div className="flex items-center justify-center min-h-[calc(100vh-120px)]">
-              <div className="text-center">
-                <h1 className="text-4xl font-bold text-gray-800 mb-4">House of Salaga</h1>
-                <p className="text-gray-600 mb-6">Welcome to our fashion store!</p>
-              </div>
-            </div>
-          } />
         </Routes>
       </main>
 
