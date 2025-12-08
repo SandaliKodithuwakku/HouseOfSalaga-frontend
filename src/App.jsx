@@ -14,6 +14,9 @@ import Contact from './pages/Contact';
 import FAQ from './pages/FAQ';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Home from './pages/Home';
+import Shop from './pages/Shop';
+import ProductDetail from './pages/ProductDetail';
+
 
 function App() {
   return (
@@ -59,6 +62,10 @@ function AppContent() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+          {/* Shop & Products */}
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
           
         </Routes>
       </main>
