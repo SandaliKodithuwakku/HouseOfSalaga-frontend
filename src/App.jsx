@@ -17,7 +17,9 @@ import Home from './pages/Home';
 import Shop from './pages/Shop';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
- 
+import Shipping from './pages/Shipping';
+import Checkout from './pages/Checkout';
+import OrderComplete from './pages/OrderComplete';
 
 function App() {
   return (
@@ -68,8 +70,11 @@ function AppContent() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/products/:id" element={<ProductDetail />} />
 
-          {/* Cart */}
+          {/* Cart & checkout*/}
           <Route path="/cart" element={<Cart />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-complete" element={<OrderComplete />} />
           
         </Routes> 
       </main>
