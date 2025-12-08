@@ -21,6 +21,11 @@ import Shipping from './pages/Shipping';
 import Checkout from './pages/Checkout';
 import OrderComplete from './pages/OrderComplete';
 import ProfileLayout from './components/layout/ProfileLayout';
+import ProfileOrders from './pages/profile/Orders';
+import ProfileReviews from './pages/profile/Reviews';
+import ProfileWishlist from './pages/profile/Wishlist';
+import ProfileAddresses from './pages/profile/Addresses';
+import ProfileSettings from './pages/profile/Settings';
 
 function App() {
   return (
@@ -76,9 +81,16 @@ function AppContent() {
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-complete" element={<OrderComplete />} />
-
+          
           {/* Profile Routes */}
-          <Route path="/profile" element={<ProfileLayout />}></Route>
+          <Route path="/profile" element={<ProfileLayout />}>
+            <Route path="orders" element={<ProfileOrders />} />
+            <Route path="reviews" element={<ProfileReviews />} />
+            <Route path="wishlist" element={<ProfileWishlist />} />
+            <Route path="addresses" element={<ProfileAddresses />} />
+            <Route path="settings" element={<ProfileSettings />} />
+          </Route>
+          
           
         </Routes> 
       </main>
