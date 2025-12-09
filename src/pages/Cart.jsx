@@ -7,7 +7,7 @@ import cartService from '../services/cartService';
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
+  const [selectedItems, setSelectedItems] = useState(new Set());
 
   useEffect(() => {
     fetchCart();
@@ -18,15 +18,39 @@ const Cart = () => {
       setLoading(true);
       const response = await cartService.getCart();
       if (response.success) {
-        setCartItems(response.data.cart.items || []);
-        setTotal(response.data.total || 0);
+        const items = response.data.cart.items || [];
+        setCartItems(items);
+        // Select all items by default
+        setSelectedItems(new Set(items.map(item => item._id)));
       }
     } catch (error) {
       console.error('Error fetching cart:', error);
-      // If user not logged in, show empty cart
       setCartItems([]);
+      setSelectedItems(new Set());
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleSelectItem = (itemId) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.size === cartItems.length) {
+      // Deselect all
+      setSelectedItems(new Set());
+    } else {
+      // Select all
+      setSelectedItems(new Set(cartItems.map(item => item._id)));
     }
   };
 
@@ -48,6 +72,12 @@ const Cart = () => {
     try {
       const response = await cartService.removeFromCart(cartItemId);
       if (response.success) {
+        // Remove from selected items if it was selected
+        setSelectedItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(cartItemId);
+          return newSet;
+        });
         await fetchCart();
         toast.success('Item removed from cart');
       }
@@ -56,12 +86,18 @@ const Cart = () => {
     }
   };
 
+  // Calculate totals based on SELECTED items only
   const subtotal = cartItems.reduce((sum, item) => {
+    if (!selectedItems.has(item._id)) return sum;
     const product = item.productId;
     return sum + (product?.price || 0) * item.quantity;
   }, 0);
-  const shippingCost = subtotal >= 25000 ? 0 : 500;
+
+  const shippingCost = subtotal >= 25000 ? 0 : subtotal > 0 ? 500 : 0;
   const orderTotal = subtotal + shippingCost;
+
+  const allSelected = cartItems.length > 0 && selectedItems.size === cartItems.length;
+  const someSelected = selectedItems.size > 0 && selectedItems.size < cartItems.length;
 
   if (loading) {
     return (
@@ -114,9 +150,25 @@ const Cart = () => {
           </div>
         ) : (
           <>
-            {/* Shopping Cart Title */}
-            <div className="mb-6">
+            {/* Shopping Cart Title with Select All */}
+            <div className="mb-6 flex items-center justify-between">
               <h1 className="text-3xl font-serif text-gray-900">Shopping Cart</h1>
+              
+              {/* Select All Checkbox */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={input => {
+                    if (input) input.indeterminate = someSelected;
+                  }}
+                  onChange={toggleSelectAll}
+                  className="w-5 h-5 text-amber-800 border-gray-300 rounded focus:ring-amber-500 cursor-pointer"
+                />
+                <span className="text-sm text-gray-700 font-medium">
+                  Select All ({selectedItems.size}/{cartItems.length})
+                </span>
+              </label>
             </div>
 
             {/* Cart Items */}
@@ -125,13 +177,23 @@ const Cart = () => {
                 const product = item.productId;
                 if (!product) return null;
                 
+                const isSelected = selectedItems.has(item._id);
+                
                 return (
-                  <div key={item._id} className="bg-white rounded-lg shadow-sm p-6">
+                  <div 
+                    key={item._id} 
+                    className={`bg-white rounded-lg shadow-sm p-6 transition-all ${
+                      isSelected ? 'ring-2 ring-amber-800' : ''
+                    }`}
+                  >
                     <div className="flex gap-6">
-                      {/* Expand/Collapse Icon */}
-                      <button className="flex-shrink-0 w-6 h-6 border-2 border-gray-300 rounded flex items-center justify-center hover:border-amber-800 transition-colors">
-                        <Minus className="w-4 h-4 text-gray-600" />
-                      </button>
+                      {/* Checkbox */}
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectItem(item._id)}
+                        className="flex-shrink-0 w-5 h-5 text-amber-800 border-gray-300 rounded focus:ring-amber-500 cursor-pointer mt-1"
+                      />
 
                       {/* Product Image */}
                       <Link to={`/products/${product._id}`} className="flex-shrink-0">
@@ -179,6 +241,12 @@ const Cart = () => {
                               <Plus className="w-3 h-3" />
                             </button>
                           </div>
+                          
+                          {isSelected && (
+                            <span className="text-sm text-gray-600">
+                              Subtotal: Rs. {(product.price * item.quantity).toLocaleString()}
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -202,37 +270,52 @@ const Cart = () => {
                 Order Summary
               </h2>
 
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between text-gray-700">
-                  <span>Subtotal</span>
-                  <span className="font-medium">Rs. {subtotal.toLocaleString()}</span>
+              {selectedItems.size === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">Please select items to checkout</p>
                 </div>
+              ) : (
+                <>
+                  <div className="space-y-3 mb-4">
+                    <div className="flex justify-between text-gray-700">
+                      <span>Subtotal ({selectedItems.size} {selectedItems.size === 1 ? 'item' : 'items'})</span>
+                      <span className="font-medium">Rs. {subtotal.toLocaleString()}</span>
+                    </div>
 
-                <div className="flex justify-between text-gray-700">
-                  <span>Shipping</span>
-                  <span className="font-medium">
-                    {shippingCost === 0 ? (
-                      <span className="text-green-600">FREE</span>
-                    ) : (
-                      `Rs. ${shippingCost.toLocaleString()}`
+                    <div className="flex justify-between text-gray-700">
+                      <span>Shipping</span>
+                      <span className="font-medium">
+                        {shippingCost === 0 ? (
+                          <span className="text-green-600">FREE</span>
+                        ) : (
+                          `Rs. ${shippingCost.toLocaleString()}`
+                        )}
+                      </span>
+                    </div>
+
+                    {subtotal < 25000 && subtotal > 0 && (
+                      <p className="text-xs text-gray-600">
+                        Add Rs. {(25000 - subtotal).toLocaleString()} more for free shipping
+                      </p>
                     )}
-                  </span>
-                </div>
 
-                <div className="border-t border-amber-200 pt-3">
-                  <div className="flex justify-between text-lg font-bold text-gray-900">
-                    <span>Total</span>
-                    <span>Rs. {orderTotal.toLocaleString()}</span>
+                    <div className="border-t border-amber-200 pt-3">
+                      <div className="flex justify-between text-lg font-bold text-gray-900">
+                        <span>Total</span>
+                        <span>Rs. {orderTotal.toLocaleString()}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <Link
-                to="/shipping"
-                className="block w-full bg-amber-800 text-white text-center py-3 px-6 rounded-md hover:bg-amber-900 transition-colors font-medium"
-              >
-                Proceed to Checkout
-              </Link>
+                  <Link
+                    to="/shipping"
+                    state={{ selectedItems: Array.from(selectedItems) }}
+                    className="block w-full bg-amber-800 text-white text-center py-3 px-6 rounded-md hover:bg-amber-900 transition-colors font-medium"
+                  >
+                    Proceed to Checkout ({selectedItems.size} {selectedItems.size === 1 ? 'item' : 'items'})
+                  </Link>
+                </>
+              )}
             </div>
           </>
         )}
