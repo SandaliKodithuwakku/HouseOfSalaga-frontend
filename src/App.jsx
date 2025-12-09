@@ -28,6 +28,7 @@ import ProfileAddresses from './pages/profile/Addresses';
 import ProfileSettings from './pages/profile/Settings';
 import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
+import Products from './pages/admin/Products';
 
 function App() {
   return (
@@ -93,9 +94,10 @@ function AppContent() {
             <Route path="settings" element={<ProfileSettings />} />
           </Route>
 
+          {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
-           
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="products" element={<Products />} />
         </Route>
           
           
