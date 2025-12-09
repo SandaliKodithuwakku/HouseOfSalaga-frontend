@@ -30,6 +30,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
+import AdminUsers from './pages/admin/Users';
 
 function App() {
   return (
@@ -100,6 +101,7 @@ function AppContent() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<Products />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="users" element={<AdminUsers />} />
         </Route>
           
           
