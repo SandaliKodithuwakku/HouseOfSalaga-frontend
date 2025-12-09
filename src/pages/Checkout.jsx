@@ -111,14 +111,18 @@ const Checkout = () => {
       setLoading(true);
       
       const orderData = {
+        customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
         deliveryAddress: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} ${shippingInfo.zipCode}, ${shippingInfo.country}`,
         phoneNumber: shippingInfo.phone,
-        paymentMethod: 'cash_on_delivery',
+        paymentMethod: selectedPayment,
         cartItems: cartItems.map(item => ({
           productId: item.productId._id,
           quantity: item.quantity,
         })),
       };
+
+      console.log('Selected Payment:', selectedPayment);
+      console.log('Order Data being sent:', orderData);
 
       const response = await orderService.createOrder(orderData);
       

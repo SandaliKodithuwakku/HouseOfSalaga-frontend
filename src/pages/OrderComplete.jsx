@@ -29,6 +29,8 @@ const OrderComplete = () => {
       setLoading(true);
       const response = await orderService.getOrderById(orderId);
       if (response.success) {
+        console.log('Order data:', response.data);
+        console.log('Payment method:', response.data.paymentMethod);
         setOrder(response.data);
       }
     } catch (error) {
@@ -114,7 +116,7 @@ const OrderComplete = () => {
                 Thank you. Your order has been Received.
               </p>
               <p className="text-base">
-                Please send your bank slip to <span className="font-semibold">+94 71 235 4567</span>
+                Please send your bank slip to <span className="font-semibold">+94 77 235 4567</span>
               </p>
             </div>
           ) : (
