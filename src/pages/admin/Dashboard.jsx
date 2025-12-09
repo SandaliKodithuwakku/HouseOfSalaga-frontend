@@ -78,9 +78,11 @@ const Dashboard = () => {
         <div className="bg-amber-50 rounded-lg p-6 shadow-sm">
           <h3 className="text-gray-600 text-sm font-medium mb-2">Total Revenue</h3>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-orange-600">${stats.totalRevenue}</span>
+            <span className="text-3xl font-bold text-orange-600">Rs. {parseFloat(stats.totalRevenue).toLocaleString()}</span>
           </div>
-          <p className="text-sm text-gray-600 mt-2">+{stats.revenueGrowth}% from last month</p>
+          <p className="text-sm text-gray-600 mt-2">
+            {stats.revenueGrowth >= 0 ? '+' : ''}{stats.revenueGrowth}% from last month
+          </p>
         </div>
 
         {/* Total Orders */}
@@ -89,7 +91,9 @@ const Dashboard = () => {
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-blue-600">{stats.totalOrders.toLocaleString()}</span>
           </div>
-          <p className="text-sm text-gray-600 mt-2">+{stats.ordersGrowth}% from last month</p>
+          <p className="text-sm text-gray-600 mt-2">
+            {stats.ordersGrowth >= 0 ? '+' : ''}{stats.ordersGrowth}% from last month
+          </p>
         </div>
 
         {/* Total Products */}
@@ -107,7 +111,9 @@ const Dashboard = () => {
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-green-600">{stats.totalUsers.toLocaleString()}</span>
           </div>
-          <p className="text-sm text-gray-600 mt-2">+{stats.usersGrowth}% from last month</p>
+          <p className="text-sm text-gray-600 mt-2">
+            {stats.usersGrowth >= 0 ? '+' : ''}{stats.usersGrowth}% from last month
+          </p>
         </div>
 
         {/* Total Reviews */}
