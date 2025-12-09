@@ -101,6 +101,33 @@ const adminService = {
     return response.data;
   },
 
+  //  Get all reviews 
+  getReviews: async (params) => {
+    try {
+      const response = await api.get('/reviews', { params });
+      
+      // Transform response to match expected format
+      const reviews = response.data.data?.reviews || [];
+      const total = response.data.data?.pagination?.total || reviews.length;
+      const totalPages = response.data.data?.pagination?.totalPages || 1;
+      
+      return {
+        reviews,
+        total,
+        pages: totalPages
+      };
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      throw error;
+    }
+  },
+
+  // Update review status
+  updateReviewStatus: async (reviewId, status) => {
+    const response = await api.patch(`/admin/reviews/${reviewId}/status`, { status });
+    return response.data;
+  },
+
   // Delete review
   deleteReview: async (reviewId) => {
     const response = await api.delete(`/admin/reviews/${reviewId}`);

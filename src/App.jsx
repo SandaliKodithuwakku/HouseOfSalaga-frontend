@@ -31,6 +31,7 @@ import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
 import AdminUsers from './pages/admin/Users';
+import AdminReviews from './pages/admin/Reviews';
 
 function App() {
   return (
@@ -102,6 +103,7 @@ function AppContent() {
           <Route path="products" element={<Products />} />
           <Route path="orders" element={<Orders />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="reviews" element={<AdminReviews />} />
         </Route>
           
           
