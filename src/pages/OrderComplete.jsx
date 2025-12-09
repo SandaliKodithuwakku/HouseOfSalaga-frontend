@@ -8,8 +8,15 @@ const OrderComplete = () => {
   const orderId = searchParams.get('orderId');
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [shippingInfo, setShippingInfo] = useState(null);
 
   useEffect(() => {
+    // Load shipping info from sessionStorage
+    const savedShippingInfo = sessionStorage.getItem('shippingInfo');
+    if (savedShippingInfo) {
+      setShippingInfo(JSON.parse(savedShippingInfo));
+    }
+    
     if (orderId) {
       fetchOrder();
     } else {
@@ -101,9 +108,20 @@ const OrderComplete = () => {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Success Message */}
         <div className="border-2 border-green-600 rounded-lg p-6 mb-8 bg-green-50">
-          <p className="text-center text-green-800 text-lg font-medium">
-            Thank you. Your order has been Received
-          </p>
+          {order && order.paymentMethod === 'direct_transfer' ? (
+            <div className="text-center text-green-800">
+              <p className="text-lg font-medium mb-2">
+                Thank you. Your order has been Received.
+              </p>
+              <p className="text-base">
+                Please send your bank slip to <span className="font-semibold">+94 71 235 4567</span>
+              </p>
+            </div>
+          ) : (
+            <p className="text-center text-green-800 text-lg font-medium">
+              Thank you. Your order has been Received
+            </p>
+          )}
         </div>
 
         {/* Order Details */}
@@ -146,7 +164,7 @@ const OrderComplete = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Shipping Address</h3>
               <div className="bg-gray-50 rounded-lg p-4">
                 <p className="text-gray-900 font-medium mb-1">
-                  {order.userId?.name || 'Customer'}
+                  {order.customerName || (shippingInfo ? `${shippingInfo.firstName} ${shippingInfo.lastName}` : order.userId?.name || 'Customer')}
                 </p>
                 <p className="text-gray-700 text-sm">
                   {order.deliveryAddress || 'No address provided'}
