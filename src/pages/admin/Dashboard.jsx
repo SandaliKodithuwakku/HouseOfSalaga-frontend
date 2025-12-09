@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import adminService from '../../services/adminService';
 import { toast } from 'react-toastify';
+import jsPDF from 'jspdf';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -36,10 +37,151 @@ const Dashboard = () => {
 
   const handleGenerateReport = async () => {
     try {
-      const report = await adminService.getSalesReport();
-      toast.success('Performance report generated successfully');
-      console.log('Sales Report:', report);
-      // You can download or display the report here
+      toast.info('Generating performance report...');
+      
+      const pdf = new jsPDF();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 20;
+      let yPos = margin;
+
+      // Header - Company Name
+      pdf.setFontSize(24);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('House of Salaga', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 10;
+
+      // Report Title
+      pdf.setFontSize(18);
+      pdf.text('Performance Report', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 8;
+
+      // Date
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      pdf.text(`Generated on: ${currentDate}`, pageWidth / 2, yPos, { align: 'center' });
+      yPos += 15;
+
+      // Divider line
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 15;
+
+      // Key Metrics Section
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Key Metrics', margin, yPos);
+      yPos += 10;
+
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+
+      // Total Revenue
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Total Revenue:', margin, yPos);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Rs. ${parseFloat(stats.totalRevenue).toLocaleString()}`, margin + 50, yPos);
+      if (stats.revenueGrowth >= 0) {
+        pdf.setTextColor(0, 128, 0);
+      } else {
+        pdf.setTextColor(255, 0, 0);
+      }
+      pdf.text(`(${stats.revenueGrowth >= 0 ? '+' : ''}${stats.revenueGrowth}% from last month)`, margin + 120, yPos);
+      pdf.setTextColor(0, 0, 0);
+      yPos += 10;
+
+      // Total Orders
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Total Orders:', margin, yPos);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${stats.totalOrders.toLocaleString()}`, margin + 50, yPos);
+      if (stats.ordersGrowth >= 0) {
+        pdf.setTextColor(0, 128, 0);
+      } else {
+        pdf.setTextColor(255, 0, 0);
+      }
+      pdf.text(`(${stats.ordersGrowth >= 0 ? '+' : ''}${stats.ordersGrowth}% from last month)`, margin + 120, yPos);
+      pdf.setTextColor(0, 0, 0);
+      yPos += 10;
+
+      // Total Products
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Total Products:', margin, yPos);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${stats.totalProducts}`, margin + 50, yPos);
+      yPos += 10;
+
+      // Total Users
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Total Users:', margin, yPos);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${stats.totalUsers.toLocaleString()}`, margin + 50, yPos);
+      if (stats.usersGrowth >= 0) {
+        pdf.setTextColor(0, 128, 0);
+      } else {
+        pdf.setTextColor(255, 0, 0);
+      }
+      pdf.text(`(${stats.usersGrowth >= 0 ? '+' : ''}${stats.usersGrowth}% from last month)`, margin + 120, yPos);
+      pdf.setTextColor(0, 0, 0);
+      yPos += 10;
+
+      // Total Reviews
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Total Reviews:', margin, yPos);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${stats.totalReviews}`, margin + 50, yPos);
+      yPos += 15;
+
+      // Average Order Value (if available)
+      if (stats.averageOrderValue) {
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Average Order Value:', margin, yPos);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Rs. ${parseFloat(stats.averageOrderValue).toLocaleString()}`, margin + 50, yPos);
+        yPos += 10;
+      }
+
+      // Current Month Performance
+      if (stats.currentMonthRevenue !== undefined) {
+        yPos += 10;
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 15;
+
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Current Month Performance', margin, yPos);
+        yPos += 10;
+
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Monthly Revenue:', margin, yPos);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Rs. ${parseFloat(stats.currentMonthRevenue).toLocaleString()}`, margin + 50, yPos);
+        yPos += 10;
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Monthly Orders:', margin, yPos);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`${stats.currentMonthOrders || 0}`, margin + 50, yPos);
+        yPos += 15;
+      }
+
+      // Footer
+      yPos = pageHeight - 20;
+      pdf.setFontSize(8);
+      pdf.setTextColor(128, 128, 128);
+      pdf.text('House of Salaga - Business Performance Report', pageWidth / 2, yPos, { align: 'center' });
+
+      // Save PDF
+      pdf.save(`House-of-Salaga-Performance-Report-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      toast.success('Performance report downloaded successfully');
     } catch (error) {
       console.error('Error generating report:', error);
       toast.error('Failed to generate report');
