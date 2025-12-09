@@ -26,6 +26,7 @@ import ProfileReviews from './pages/profile/Reviews';
 import ProfileWishlist from './pages/profile/Wishlist';
 import ProfileAddresses from './pages/profile/Addresses';
 import ProfileSettings from './pages/profile/Settings';
+import AdminLayout from './components/layout/AdminLayout';
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function AppContent() {
   const location = useLocation();
   
   // Routes where navbar and footer should be hidden
-  const hideNavbarFooterRoutes = ['/login', '/signup', '/forgot-password', '/reset-password'];
+  const hideNavbarFooterRoutes = ['/login', '/signup', '/forgot-password', '/reset-password', '/admin'];
   
   // Check if current path matches any of the routes where navbar/footer should be hidden
   const shouldShowNavbarFooter = !hideNavbarFooterRoutes.some(route => 
@@ -90,6 +91,10 @@ function AppContent() {
             <Route path="addresses" element={<ProfileAddresses />} />
             <Route path="settings" element={<ProfileSettings />} />
           </Route>
+
+          <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<div>Admin Dashboard Coming Soon</div>} />
+        </Route>
           
           
         </Routes> 
