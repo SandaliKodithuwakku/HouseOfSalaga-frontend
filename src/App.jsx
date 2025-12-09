@@ -27,6 +27,7 @@ import ProfileWishlist from './pages/profile/Wishlist';
 import ProfileAddresses from './pages/profile/Addresses';
 import ProfileSettings from './pages/profile/Settings';
 import AdminLayout from './components/layout/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
 
 function App() {
   return (
@@ -93,7 +94,8 @@ function AppContent() {
           </Route>
 
           <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<div>Admin Dashboard Coming Soon</div>} />
+           
+          <Route path="dashboard" element={<Dashboard />} />
         </Route>
           
           
