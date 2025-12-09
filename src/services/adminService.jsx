@@ -4,28 +4,23 @@ const adminService = {
   // Get dashboard statistics
   getDashboardStats: async () => {
     try {
-      // Fetch all required data in parallel
       const [productsRes, ordersRes, usersRes, reviewsRes] = await Promise.all([
-        api.get('/products'), // Get all products
-        api.get('/admin/orders'), // Get all orders
-        api.get('/admin/users'), // Get all users
-        api.get('/reviews'), // Get all reviews
+        api.get('/products'),
+        api.get('/admin/orders'),
+        api.get('/admin/users'),
+        api.get('/reviews/admin/all'), // UPDATED
       ]);
 
-      // Calculate total revenue from all orders
       const orders = ordersRes.data.data.orders || [];
       const totalRevenue = orders.reduce((sum, order) => {
         return sum + (order.totalAmount + (order.shippingFee || 0));
       }, 0);
 
-      // Get counts
       const totalOrders = ordersRes.data.data.pagination?.total || orders.length;
       const totalProducts = productsRes.data.data.pagination?.total || productsRes.data.data.products?.length || 0;
       const totalUsers = usersRes.data.data.pagination?.total || usersRes.data.data.users?.length || 0;
       const totalReviews = reviewsRes.data.data.pagination?.total || reviewsRes.data.data.reviews?.length || 0;
 
-      // Calculate growth percentages (mock data - in real app, compare with previous period)
-      // For now, we'll use random percentages between 5-20%
       const revenueGrowth = (Math.random() * 15 + 5).toFixed(1);
       const ordersGrowth = (Math.random() * 15 + 5).toFixed(1);
       const productsGrowth = (Math.random() * 10 + 2).toFixed(0);
@@ -101,12 +96,11 @@ const adminService = {
     return response.data;
   },
 
-  //  Get all reviews 
+  // ✨ NEW: Get all reviews (admin)
   getReviews: async (params) => {
     try {
-      const response = await api.get('/reviews', { params });
+      const response = await api.get('/reviews/admin/all', { params });
       
-      // Transform response to match expected format
       const reviews = response.data.data?.reviews || [];
       const total = response.data.data?.pagination?.total || reviews.length;
       const totalPages = response.data.data?.pagination?.totalPages || 1;
@@ -122,9 +116,9 @@ const adminService = {
     }
   },
 
-  // Update review status
+  // ✨ NEW: Update review status
   updateReviewStatus: async (reviewId, status) => {
-    const response = await api.patch(`/admin/reviews/${reviewId}/status`, { status });
+    const response = await api.patch(`/reviews/admin/${reviewId}/status`, { status });
     return response.data;
   },
 

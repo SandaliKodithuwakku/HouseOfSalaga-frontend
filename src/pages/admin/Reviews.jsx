@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import adminService from '../../services/adminService';
 import { toast } from 'react-toastify';
 import { Star, Trash2, Package } from 'lucide-react';
-import api from '../../services/api';
 
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -15,11 +14,12 @@ const Reviews = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      // Fetch all reviews - need to modify to get all reviews
-      const response = await api.get('/reviews', { params: { limit: 100 } });
-      setReviews(response.data.data.reviews || []);
+      // Use adminService.getReviews instead of direct api call
+      const data = await adminService.getReviews({ limit: 100, page: 1 });
+      console.log(' Reviews fetched:', data);
+      setReviews(data.reviews || []);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      console.error(' Error fetching reviews:', error);
       toast.error('Failed to load reviews');
     } finally {
       setLoading(false);
