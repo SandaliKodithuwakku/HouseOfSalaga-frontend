@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Edit, Trash2, Package } from 'lucide-react';
+import { Star, Edit, Trash2, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingReview, setEditingReview] = useState(null);
+  const [editForm, setEditForm] = useState({
+    rating: 5,
+    title: '',
+    comment: ''
+  });
 
   useEffect(() => {
     fetchMyReviews();
@@ -25,6 +31,38 @@ const Reviews = () => {
       setReviews([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditClick = (review) => {
+    setEditingReview(review._id);
+    setEditForm({
+      rating: review.rating,
+      title: review.title,
+      comment: review.comment
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReview(null);
+    setEditForm({ rating: 5, title: '', comment: '' });
+  };
+
+  const handleUpdateReview = async (reviewId) => {
+    if (!editForm.title.trim() || !editForm.comment.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const response = await api.put(`/reviews/${reviewId}`, editForm);
+      if (response.data.success) {
+        toast.success('Review updated successfully');
+        setEditingReview(null);
+        fetchMyReviews();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update review');
     }
   };
 
@@ -54,6 +92,29 @@ const Reviews = () => {
                 : 'text-gray-300'
             }`}
           />
+        ))}
+      </div>
+    );
+  };
+
+  const renderEditableStars = (currentRating) => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => setEditForm({ ...editForm, rating: star })}
+            className="focus:outline-none"
+          >
+            <Star
+              className={`w-5 h-5 transition-colors ${
+                star <= currentRating
+                  ? 'fill-amber-400 text-amber-400'
+                  : 'text-gray-300 hover:text-amber-200'
+              }`}
+            />
+          </button>
         ))}
       </div>
     );
@@ -123,33 +184,100 @@ const Reviews = () => {
                 </div>
               </div>
 
-              {/* Rating */}
-              <div className="mb-3">
-                {renderStars(review.rating)}
-              </div>
+              {/* Edit Mode */}
+              {editingReview === review._id ? (
+                <div className="space-y-4">
+                  {/* Editable Rating */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rating
+                    </label>
+                    {renderEditableStars(editForm.rating)}
+                  </div>
 
-              {/* Review Title */}
-              {review.title && (
-                <h4 className="text-base font-semibold text-gray-900 mb-2">
-                  {review.title}
-                </h4>
+                  {/* Editable Title */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Review Title
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.title}
+                      onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="Summarize your review"
+                    />
+                  </div>
+
+                  {/* Editable Comment */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Your Review
+                    </label>
+                    <textarea
+                      value={editForm.comment}
+                      onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
+                      rows="4"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      placeholder="Share your thoughts about this product"
+                    />
+                  </div>
+
+                  {/* Edit Actions */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleUpdateReview(review._id)}
+                      className="px-4 py-2 bg-amber-800 text-white rounded-md hover:bg-amber-900 transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Display Mode */}
+                  {/* Rating */}
+                  <div className="mb-3">
+                    {renderStars(review.rating)}
+                  </div>
+
+                  {/* Review Title */}
+                  {review.title && (
+                    <h4 className="text-base font-semibold text-gray-900 mb-2">
+                      {review.title}
+                    </h4>
+                  )}
+
+                  {/* Review Comment */}
+                  <p className="text-gray-700 mb-4">
+                    {review.comment}
+                  </p>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => handleEditClick(review)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 rounded-md transition-colors"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteReview(review._id)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </div>
+                </>
               )}
-
-              {/* Review Comment */}
-              <p className="text-gray-700 mb-4">
-                {review.comment}
-              </p>
-
-              {/* Actions */}
-              <div className="flex gap-2 pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => handleDeleteReview(review._id)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </button>
-              </div>
             </div>
           ))}
         </div>
