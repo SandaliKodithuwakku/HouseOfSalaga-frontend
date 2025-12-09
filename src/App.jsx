@@ -29,6 +29,7 @@ import ProfileSettings from './pages/profile/Settings';
 import AdminLayout from './components/layout/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
+import Orders from './pages/admin/Orders';
 
 function App() {
   return (
@@ -98,6 +99,7 @@ function AppContent() {
           <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="products" element={<Products />} />
+          <Route path="orders" element={<Orders />} />
         </Route>
           
           
