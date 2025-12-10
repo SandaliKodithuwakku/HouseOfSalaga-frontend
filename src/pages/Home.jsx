@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, Shield, Clock, Heart } from 'lucide-react';
+import { ArrowRight, Truck, Shield, Clock, Heart, Eye } from 'lucide-react';
 import productService from '../services/productService';
+import ProductQuickView from '../components/products/ProductQuickView';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   // Customer Snaps Images
   const customerSnaps = [
@@ -269,31 +271,45 @@ const Home = () => {
                 const price = product.price || 0;
                 
                 return (
-                  <Link
+                  <div
                     key={pid}
-                    to={`/products/${pid}`}
                     className="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-shadow"
                   >
-                    <div className="aspect-[3/4] bg-gray-200 overflow-hidden relative flex items-center justify-center">
-                      {img ? (
-                        <img
-                          src={img}
-                          alt={name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="text-gray-400 text-sm">No Image</div>
-                      )}
-                    </div>
-                    <div className="p-4">
+                    <Link to={`/products/${pid}`}>
+                      <div className="aspect-[3/4] bg-gray-200 overflow-hidden relative flex items-center justify-center">
+                        {img ? (
+                          <img
+                            src={img}
+                            alt={name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="text-gray-400 text-sm">No Image</div>
+                        )}
+                        {/* Quick View Button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setQuickViewProduct(product);
+                          }}
+                          className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+                        >
+                          <span className="bg-white text-gray-900 px-4 py-2 rounded-full font-semibold flex items-center gap-2 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                            <Eye className="w-4 h-4" />
+                            Quick View
+                          </span>
+                        </button>
+                      </div>
+                    </Link>
+                    <Link to={`/products/${pid}`} className="p-4 block">
                       <h3 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-amber-800 transition-colors">
                         {name}
                       </h3>
                       <p className="text-xl font-semibold text-gray-900">
                         Rs. {Number(price).toLocaleString()}
                       </p>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 );
               })
             ) : (
@@ -472,6 +488,14 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <ProductQuickView
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
     </div>
   );
 };

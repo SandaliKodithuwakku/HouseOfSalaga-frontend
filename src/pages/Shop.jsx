@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Heart, SlidersHorizontal, X } from 'lucide-react';
+import { Heart, SlidersHorizontal, X, Eye } from 'lucide-react';
 import { toast } from 'react-toastify';
 import productService from '../services/productService';
 import wishlistService from '../services/wishlistService';
+import ProductQuickView from '../components/products/ProductQuickView';
 
 const Shop = () => {
   const [searchParams] = useSearchParams();
@@ -25,6 +26,7 @@ const Shop = () => {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   const colors = [
     { name: 'Black', value: 'black', hex: '#000000' },
@@ -501,12 +503,25 @@ const Shop = () => {
                       className="bg-white rounded-lg overflow-hidden group hover:shadow-lg transition-shadow"
                     >
                       <Link to={`/products/${product._id}`} className="block relative">
-                        <div className="aspect-[3/4] bg-gray-100 overflow-hidden">
+                        <div className="aspect-[3/4] bg-gray-100 overflow-hidden relative">
                           <img
                             src={product.images?.[0]?.url || 'https://via.placeholder.com/400x500'}
                             alt={product.name}
                             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           />
+                          {/* Quick View Button */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setQuickViewProduct(product);
+                            }}
+                            className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          >
+                            <span className="bg-white text-gray-900 px-4 py-2 rounded-full font-semibold flex items-center gap-2 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                              <Eye className="w-4 h-4" />
+                              Quick View
+                            </span>
+                          </button>
                         </div>
                         {product.stock === 0 && (
                           <span className="absolute top-3 right-3 bg-red-600 text-white text-xs px-3 py-1 rounded-full">
@@ -592,6 +607,14 @@ const Shop = () => {
           </div>
         </div>
       </div>
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <ProductQuickView
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
     </div>
   );
 };
