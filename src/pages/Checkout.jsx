@@ -118,6 +118,9 @@ const Checkout = () => {
         cartItems: cartItems.map(item => ({
           productId: item.productId._id,
           quantity: item.quantity,
+          price: item.price,
+          size: item.size || '',
+          color: item.color || '',
         })),
       };
 
@@ -396,19 +399,19 @@ const Checkout = () => {
                   {/* Cash on Delivery */}
                   <div
                     className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      selectedPayment === 'cod'
+                      selectedPayment === 'cash_on_delivery'
                         ? 'border-amber-900 bg-white'
                         : 'border-gray-300 bg-white hover:border-gray-400'
                     }`}
-                    onClick={() => setSelectedPayment('cod')}
+                    onClick={() => setSelectedPayment('cash_on_delivery')}
                   >
                     <div className="flex items-center gap-3">
                       <input
                         type="radio"
                         id="cod"
                         name="payment"
-                        checked={selectedPayment === 'cod'}
-                        onChange={() => setSelectedPayment('cod')}
+                        checked={selectedPayment === 'cash_on_delivery'}
+                        onChange={() => setSelectedPayment('cash_on_delivery')}
                         className="w-4 h-4 accent-amber-900"
                       />
                       <label htmlFor="cod" className="text-gray-900 font-medium cursor-pointer">
@@ -417,60 +420,42 @@ const Checkout = () => {
                     </div>
                   </div>
 
-                  {/* PayPolo */}
+                  {/* PayPal */}
                   <div
-                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      selectedPayment === 'paypolo'
-                        ? 'border-amber-900 bg-white'
-                        : 'border-gray-300 bg-white hover:border-gray-400'
-                    }`}
-                    onClick={() => setSelectedPayment('paypolo')}
+                    className="border-2 rounded-lg p-4 bg-gray-100 opacity-60 cursor-not-allowed"
                   >
                     <div className="flex items-start gap-3">
                       <input
                         type="radio"
-                        id="paypolo"
+                        id="paypal"
                         name="payment"
-                        checked={selectedPayment === 'paypolo'}
-                        onChange={() => setSelectedPayment('paypolo')}
+                        disabled
                         className="mt-1 w-4 h-4 accent-amber-900"
                       />
                       <div className="flex-1">
-                        <label htmlFor="paypolo" className="text-gray-900 font-medium cursor-pointer block mb-1">
-                          PayPolo
+                        <label htmlFor="paypal" className="text-gray-500 font-medium block mb-1">
+                          PayPal (Coming Soon)
                         </label>
-                        <a href="#" className="text-xs text-blue-600 hover:underline">
-                          (what is PayPolo?)
-                        </a>
                       </div>
                     </div>
                   </div>
 
-                  {/* Pay Earlier with Kipipay */}
+                  {/* KokoPay */}
                   <div
-                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      selectedPayment === 'kipipay'
-                        ? 'border-amber-900 bg-white'
-                        : 'border-gray-300 bg-white hover:border-gray-400'
-                    }`}
-                    onClick={() => setSelectedPayment('kipipay')}
+                    className="border-2 rounded-lg p-4 bg-gray-100 opacity-60 cursor-not-allowed"
                   >
                     <div className="flex items-start gap-3">
                       <input
                         type="radio"
-                        id="kipipay"
+                        id="kokopay"
                         name="payment"
-                        checked={selectedPayment === 'kipipay'}
-                        onChange={() => setSelectedPayment('kipipay')}
+                        disabled
                         className="mt-1 w-4 h-4 accent-amber-900"
                       />
                       <div className="flex-1">
-                        <label htmlFor="kipipay" className="text-gray-900 font-medium cursor-pointer block">
-                          Pay Earlier with Kipipay
+                        <label htmlFor="kokopay" className="text-gray-500 font-medium block">
+                          KokoPay (Coming Soon)
                         </label>
-                        <button className="mt-2 text-xs text-white bg-amber-900 px-3 py-1 rounded hover:bg-amber-800">
-                          Click Here To Pay
-                        </button>
                       </div>
                     </div>
                   </div>
