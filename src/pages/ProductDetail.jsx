@@ -17,9 +17,8 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const colors = ['Black', 'White', 'Red', 'Blue', 'Green'];
+  const [availableSizes, setAvailableSizes] = useState([]);
+  const [availableColors, setAvailableColors] = useState([]);
 
   useEffect(() => {
     if (id) {
@@ -67,6 +66,27 @@ const ProductDetail = () => {
   useEffect(() => {
     if (product?.images?.length > 0) {
       setMainImage(product.images[0].url);
+    }
+    
+    // Extract available sizes and colors
+    if (product) {
+      // Get sizes from product.sizes array or from variants
+      let sizes = [];
+      if (product.sizes && product.sizes.length > 0) {
+        sizes = product.sizes;
+      } else if (product.variants && product.variants.length > 0) {
+        sizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))];
+      }
+      setAvailableSizes(sizes);
+      
+      // Get colors from product.colors array or from variants
+      let colors = [];
+      if (product.colors && product.colors.length > 0) {
+        colors = product.colors;
+      } else if (product.variants && product.variants.length > 0) {
+        colors = [...new Set(product.variants.map(v => v.color).filter(Boolean))];
+      }
+      setAvailableColors(colors);
     }
   }, [product]);
 
@@ -261,19 +281,23 @@ const ProductDetail = () => {
                   Color:
                 </label>
                 <div className="flex items-center gap-3 flex-wrap">
-                  {colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-4 py-2 rounded-md border-2 text-sm transition-all ${
-                        selectedColor === color
-                          ? 'border-gray-900 bg-gray-100'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
+                  {availableColors.length > 0 ? (
+                    availableColors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`px-4 py-2 rounded-md border-2 text-sm transition-all ${
+                          selectedColor === color
+                            ? 'border-gray-900 bg-gray-100'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No color options available</p>
+                  )}
                 </div>
               </div>
 
@@ -285,19 +309,23 @@ const ProductDetail = () => {
                   </label>
                 </div>
                 <div className="flex gap-3 flex-wrap">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-12 h-12 rounded-md border-2 text-sm font-medium transition-all ${
-                        selectedSize === size
-                          ? 'border-gray-900 bg-gray-900 text-white'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                  {availableSizes.length > 0 ? (
+                    availableSizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`w-12 h-12 rounded-md border-2 text-sm font-medium transition-all ${
+                          selectedSize === size
+                            ? 'border-gray-900 bg-gray-900 text-white'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No size options available</p>
+                  )}
                 </div>
               </div>
 
