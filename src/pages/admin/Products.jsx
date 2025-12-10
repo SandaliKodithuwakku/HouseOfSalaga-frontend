@@ -13,10 +13,15 @@ const Products = () => {
     name: '',
     description: '',
     category: '',
+    sizes: '',
+    colors: '',
     price: '',
     stock: '',
     image: null,
   });
+  const [variants, setVariants] = useState([
+    { size: '', color: '', stock: '' },
+  ]);
 
   useEffect(() => {
     fetchProducts();
@@ -65,11 +70,43 @@ const Products = () => {
     }
   };
 
+  const addVariant = () => {
+    setVariants(prev => [...prev, { size: '', color: '', stock: '' }]);
+  };
+
+  const removeVariant = (index) => {
+    setVariants(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateVariant = (index, field, value) => {
+    setVariants(prev => prev.map((v, i) => i === index ? { ...v, [field]: value } : v));
+  };
+
+  // Derived options from comma-separated inputs
+  const sizesOptions = (formData.sizes || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+  const colorsOptions = (formData.colors || '')
+    .split(',')
+    .map(c => c.trim())
+    .filter(Boolean);
+
+  // sensible defaults when admin hasn't provided options
+  const sizesDefault = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const colorsDefault = ['Black', 'White', 'Red', 'Blue', 'Green'];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.category || !formData.price || !formData.stock || !formData.image) {
-      toast.error('Please fill all required fields');
+    // Require name, category, price, image and (either base stock or at least one fully filled variant)
+    const hasValidVariant = variants.some(v => v.size || v.color || v.stock);
+    if (!formData.name || !formData.category || !formData.price || !formData.image) {
+      toast.error('Please fill all required fields (name, category, price, image)');
+      return;
+    }
+    if (!formData.stock && !hasValidVariant) {
+      toast.error('Please provide a base stock or add at least one variant with stock');
       return;
     }
 
@@ -82,6 +119,26 @@ const Products = () => {
       formDataToSend.append('stock', formData.stock);
       formDataToSend.append('image', formData.image);
 
+      // Process sizes and colors (comma-separated inputs)
+      const sizesArr = (formData.sizes || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      const colorsArr = (formData.colors || '')
+        .split(',')
+        .map(c => c.trim())
+        .filter(Boolean);
+
+      // Append as JSON strings so backend can parse arrays
+      if (sizesArr.length) formDataToSend.append('sizes', JSON.stringify(sizesArr));
+      if (colorsArr.length) formDataToSend.append('colors', JSON.stringify(colorsArr));
+
+      // Prepare variants if any filled
+      const filledVariants = variants
+        .map(v => ({ size: (v.size || '').trim(), color: (v.color || '').trim(), stock: Number(v.stock || 0) }))
+        .filter(v => v.size || v.color || v.stock);
+      if (filledVariants.length) formDataToSend.append('variants', JSON.stringify(filledVariants));
+
       await adminService.addProduct(formDataToSend);
       toast.success('Product added successfully');
       setShowAddForm(false);
@@ -89,10 +146,13 @@ const Products = () => {
         name: '',
         description: '',
         category: '',
+        sizes: '',
+        colors: '',
         price: '',
         stock: '',
         image: null,
       });
+      setVariants([{ size: '', color: '', stock: '' }]);
       fetchProducts();
     } catch (error) {
       console.error('Error adding product:', error);
@@ -161,20 +221,24 @@ const Products = () => {
               />
             </div>
 
-            {/* Category */}
+            {/* Category (select) */}
             <div>
               <label className="block text-sm font-semibold text-gray-800 mb-2">
                 Category:
               </label>
-              <input
-                type="text"
+              <select
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
-                placeholder="e.g., Clothing, Accessories"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
                 required
-              />
+              >
+                <option value="">Select a category</option>
+                <option value="men-fashion">Men Fashion</option>
+                <option value="women-fashion">Women Fashion</option>
+                <option value="shoes-bags">Shoes &amp; Bags</option>
+                <option value="accessories">Accessories</option>
+              </select>
             </div>
 
             {/* Price */}
@@ -199,20 +263,52 @@ const Products = () => {
               </div>
             </div>
 
-            {/* Stock */}
+            {/* Variants (size + color + stock) */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
-                Stock:
-              </label>
-              <input
-                type="number"
-                name="stock"
-                value={formData.stock}
-                onChange={handleInputChange}
-                min="0"
-                className="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
-                required
-              />
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Variants</label>
+              <p className="text-xs text-gray-500 mb-2">Add specific size/color combinations with their own stock.</p>
+              <div className="space-y-3">
+                {variants.map((v, idx) => (
+                  <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                    {/* Size dropdown (use admin-provided options or defaults) */}
+                    <select
+                      value={v.size}
+                      onChange={(e) => updateVariant(idx, 'size', e.target.value)}
+                      className="col-span-4 px-3 py-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="">Select size</option>
+                      {(sizesOptions.length ? sizesOptions : sizesDefault).map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+
+                    {/* Color dropdown (use admin-provided options or defaults) */}
+                    <select
+                      value={v.color}
+                      onChange={(e) => updateVariant(idx, 'color', e.target.value)}
+                      className="col-span-5 px-3 py-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="">Select color</option>
+                      {(colorsOptions.length ? colorsOptions : colorsDefault).map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+
+                    <input
+                      type="number"
+                      value={v.stock}
+                      onChange={(e) => updateVariant(idx, 'stock', e.target.value)}
+                      placeholder="Stock"
+                      className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg"
+                      min="0"
+                    />
+                    <button type="button" onClick={() => removeVariant(idx)} className="col-span-1 text-red-600">Remove</button>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2">
+                <button type="button" onClick={addVariant} className="px-4 py-2 bg-amber-800 text-white rounded-lg">Add Variant</button>
+              </div>
             </div>
 
             {/* Images */}

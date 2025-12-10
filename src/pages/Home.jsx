@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Truck, Shield, Clock, Heart } from 'lucide-react';
+import productService from '../services/productService';
 
 const Home = () => {
-  // Mock featured products
-  const featuredProducts = [
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fallback mock data in case backend fails
+  const fallbackProducts = [
     {
       id: 1,
       name: 'Ivory Lace Midi Dress',
@@ -35,26 +40,54 @@ const Home = () => {
     },
   ];
 
-  const categories = [
-    {
-      id: 1,
-      name: 'Dresses',
-      image: 'https://res.cloudinary.com/ds8hmsirb/image/upload/v1764782500/dress1_gqljvs.jpg',
-      link: '/shop?category=dresses',
-    },
-    {
-      id: 2,
-      name: 'Tops',
-      image: 'https://res.cloudinary.com/ds8hmsirb/image/upload/v1764782500/dress2_myjyf2.jpg',
-      link: '/shop?category=tops',
-    },
-    {
-      id: 3,
-      name: 'Accessories',
-      image: 'https://res.cloudinary.com/ds8hmsirb/image/upload/v1764782500/dress1_gqljvs.jpg',
-      link: '/shop?category=accessories',
-    },
+  const fallbackCategories = [
+    { _id: 'men-fashion', name: 'Men Fashion', image: fallbackProducts[0].image },
+    { _id: 'women-fashion', name: 'Women Fashion', image: fallbackProducts[1].image },
+    { _id: 'shoes-bags', name: 'Shoes & Bags', image: fallbackProducts[2].image },
+    { _id: 'accessories', name: 'Accessories', image: fallbackProducts[3].image },
   ];
+
+  useEffect(() => {
+    const loadHomeData = async () => {
+      try {
+        setLoading(true);
+
+        // Featured products
+        try {
+          const resp = await productService.getFeaturedProducts(8);
+          if (resp.success) {
+            // resp.data may be products array or object depending on API
+            const products = resp.data.products || resp.data || [];
+            setFeaturedProducts(products.slice(0, 8));
+          } else {
+            setFeaturedProducts(fallbackProducts);
+          }
+        } catch (err) {
+          console.error('Failed to load featured products:', err);
+          setFeaturedProducts(fallbackProducts);
+        }
+
+        // Categories
+        try {
+          const catResp = await productService.getCategories();
+          if (catResp.success) {
+            // catResp.data expected to be an array
+            const cats = catResp.data || [];
+            setCategories(cats.slice(0, 6));
+          } else {
+            setCategories(fallbackCategories);
+          }
+        } catch (err) {
+          console.error('Failed to load categories:', err);
+          setCategories(fallbackCategories);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHomeData();
+  }, []);
 
   return (
     <div className="bg-white">
@@ -149,30 +182,34 @@ const Home = () => {
             <p className="text-gray-600">Find exactly what you're looking for</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                to={category.link}
-                className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow"
-              >
-                <div className="aspect-[4/5] bg-gray-100">
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-                  <div className="p-6 text-white">
-                    <h3 className="text-2xl font-serif mb-2">{category.name}</h3>
-                    <span className="text-sm flex items-center gap-2">
-                      Shop Now <ArrowRight className="w-4 h-4" />
-                    </span>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {categories.map((category) => {
+              const catId = category._id || category.id || category.name?.toLowerCase();
+              const img = category.image || category.images?.[0]?.url || fallbackProducts[0].image;
+              return (
+                <Link
+                  key={catId}
+                  to={`/shop?category=${catId}`}
+                  className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <div className="aspect-[4/5] bg-gray-100">
+                    <img
+                      src={img}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
                   </div>
-                </div>
-              </Link>
-            ))}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                    <div className="p-6 text-white">
+                      <h3 className="text-2xl font-serif mb-2">{category.name}</h3>
+                      <span className="text-sm flex items-center gap-2">
+                        Shop Now <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -186,34 +223,41 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product) => (
-              <Link
-                key={product.id}
-                to={`/products/${product.id}`}
-                className="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-shadow"
-              >
-                <div className="aspect-[3/4] bg-gray-100 overflow-hidden relative">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.isNew && (
-                    <span className="absolute top-3 left-3 bg-amber-800 text-white text-xs px-3 py-1 rounded-full">
-                      New
-                    </span>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-amber-800 transition-colors">
-                    {product.name}
-                  </h3>
-                  <p className="text-xl font-semibold text-gray-900">
-                    Rs. {product.price.toLocaleString()}
-                  </p>
-                </div>
-              </Link>
-            ))}
+            {featuredProducts.map((product) => {
+              const pid = product._id || product.id;
+              const img = product.image || product.images?.[0]?.url || fallbackProducts[0].image;
+              const name = product.name || product.title || 'Product';
+              const price = product.price || product.priceInRs || 0;
+              const isNew = product.isNew || product.isNewArrival || false;
+              return (
+                <Link
+                  key={pid}
+                  to={`/products/${pid}`}
+                  className="bg-white rounded-lg shadow-sm overflow-hidden group hover:shadow-md transition-shadow"
+                >
+                  <div className="aspect-[3/4] bg-gray-100 overflow-hidden relative">
+                    <img
+                      src={img}
+                      alt={name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {isNew && (
+                      <span className="absolute top-3 left-3 bg-amber-800 text-white text-xs px-3 py-1 rounded-full">
+                        New
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-amber-800 transition-colors">
+                      {name}
+                    </h3>
+                    <p className="text-xl font-semibold text-gray-900">
+                      Rs. {Number(price).toLocaleString()}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
 
           <div className="text-center mt-12">
