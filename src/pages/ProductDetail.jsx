@@ -6,10 +6,12 @@ import productService from '../services/productService';
 import cartService from '../services/cartService';
 import wishlistService from '../services/wishlistService';
 import api from '../services/api';
+import { useCart } from '../context/CartContext';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { updateCartCount } = useCart();
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [mainImage, setMainImage] = useState('');
@@ -130,6 +132,7 @@ const ProductDetail = () => {
       const response = await cartService.addToCart(product._id, quantity, selectedSize, selectedColor);
       if (response.success) {
         toast.success('Added to cart!');
+        updateCartCount(); // Update cart count in navbar
         navigate('/cart');
       }
     } catch (error) {

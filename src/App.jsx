@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-route
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Signup from './pages/Signup';
@@ -36,9 +37,11 @@ import AdminReviews from './pages/admin/Reviews';
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <CartProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </CartProvider>
     </AuthProvider>
   );
 }

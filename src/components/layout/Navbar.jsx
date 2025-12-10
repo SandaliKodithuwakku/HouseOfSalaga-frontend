@@ -2,35 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, ChevronDown, Menu, X, LogOut } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import cartService from '../../services/cartService';
+import { useCart } from '../../context/CartContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    if (user) {
-      fetchCartCount();
-    }
-  }, [user]);
-
-  const fetchCartCount = async () => {
-    try {
-      const response = await cartService.getCart();
-      if (response.success) {
-        const count = response.data.cart.items.reduce((sum, item) => sum + item.quantity, 0);
-        setCartCount(count);
-      }
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-    }
-  };
 
   const handleLogout = () => {
     logout();

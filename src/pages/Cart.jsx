@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 import cartService from '../services/cartService';
+import { useCart } from '../context/CartContext';
 
 const Cart = () => {
+  const { updateCartCount } = useCart();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState(new Set());
@@ -61,6 +63,7 @@ const Cart = () => {
       const response = await cartService.updateCartItem(cartItemId, newQuantity);
       if (response.success) {
         await fetchCart();
+        updateCartCount();
         toast.success('Cart updated');
       }
     } catch (error) {
@@ -79,6 +82,7 @@ const Cart = () => {
           return newSet;
         });
         await fetchCart();
+        updateCartCount();
         toast.success('Item removed from cart');
       }
     } catch (error) {
