@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Heart, SlidersHorizontal, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import productService from '../services/productService';
 import wishlistService from '../services/wishlistService';
 
 const Shop = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -36,25 +38,120 @@ const Shop = () => {
 
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
+  // Map category slugs to database category names (exact match)
+  const categorySlugMap = {
+    'men-fashion': "men-fashion",
+    'women-fashion': "women-fashion",
+    'shoes-bags': 'shoes-bags',
+    'accessories': 'accessories'
+  };
+
+  // Map database category names to display names
+  const categoryDisplayMap = {
+    'all': 'All Products',
+    'men-fashion': "Men's Fashion",
+    'women-fashion': "Women's Fashion",
+    'shoes-bags': 'Shoes & Bags',
+    'accessories': 'Accessories'
+  };
+
   useEffect(() => {
-    fetchCategories();
+    fetchAllProductsAndCategories();
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    // Skip if categories haven't loaded yet
+    if (categories.length === 0) return;
+    
+    if (selectedCategory === 'all') {
+      // Show all products from initial load
+      fetchAllProductsAndCategories();
+    } else if (selectedCategory === 'none') {
+      // Category doesn't exist, show empty state
+      setProducts([]);
+      setLoading(false);
+    } else {
+      // Fetch filtered products by category
+      fetchProducts();
+    }
   }, [selectedCategory, sortBy, priceRange, pagination.page]);
 
-  const fetchCategories = async () => {
+  // Handle category from URL query parameter
+  useEffect(() => {
+    const categorySlug = searchParams.get('category');
+    
+    if (!categorySlug) {
+      // No category in URL, show all products
+      setSelectedCategory('all');
+      return;
+    }
+    
+    if (categories.length > 0) {
+      const categoryName = categorySlugMap[categorySlug];
+      
+      if (categoryName) {
+        // Find the category object with matching name to get its ID
+        const category = categories.find(cat => cat.name === categoryName);
+        
+        if (category && category._id !== 'all') {
+          setSelectedCategory(category._id);
+        } else {
+          // Category doesn't exist in database, set to 'none' to show empty state
+          setSelectedCategory('none');
+        }
+      } else {
+        setSelectedCategory('all');
+      }
+    }
+  }, [searchParams, categories]);
+
+  // Fetch all products initially to extract categories
+  const fetchAllProductsAndCategories = async () => {
     try {
-      const response = await productService.getCategories();
+      setLoading(true);
+      const response = await productService.getAllProducts({ limit: 100 });
+      
       if (response.success) {
+        const fetchedProducts = response.data.products || [];
+        
+        // Extract unique categories with their IDs
+        const categoryMap = new Map();
+        fetchedProducts.forEach(product => {
+          if (product.category) {
+            categoryMap.set(product.category._id, {
+              _id: product.category._id,
+              name: product.category.name
+            });
+          }
+        });
+        
+        const categoryObjects = Array.from(categoryMap.values());
         setCategories([
           { _id: 'all', name: 'All Products' },
-          ...response.data
+          ...categoryObjects
         ]);
+        
+        // Apply sorting
+        let sortedProducts = [...fetchedProducts];
+        if (sortBy === 'price-low') {
+          sortedProducts = sortedProducts.sort((a, b) => a.price - b.price);
+        } else if (sortBy === 'price-high') {
+          sortedProducts = sortedProducts.sort((a, b) => b.price - a.price);
+        } else if (sortBy === 'name') {
+          sortedProducts = sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+        }
+        
+        setProducts(sortedProducts);
+        setPagination({
+          ...pagination,
+          total: fetchedProducts.length,
+          pages: Math.ceil(fetchedProducts.length / pagination.limit),
+        });
       }
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching initial products:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +164,7 @@ const Shop = () => {
       };
 
       if (selectedCategory !== 'all') {
+        // Pass the category ID (ObjectId) to the backend
         params.category = selectedCategory;
       }
 
@@ -173,7 +271,6 @@ const Shop = () => {
                 </button>
               </div>
 
-              {/* Category Filter */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">Categories</h3>
                 <div className="space-y-2">
@@ -181,8 +278,12 @@ const Shop = () => {
                     <button
                       key={category._id}
                       onClick={() => {
-                        setSelectedCategory(category._id);
-                        setPagination({ ...pagination, page: 1 });
+                        if (category._id === 'all') {
+                          navigate('/shop');
+                        } else {
+                          setSelectedCategory(category._id);
+                          setPagination({ ...pagination, page: 1 });
+                        }
                       }}
                       className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
                         selectedCategory === category._id
@@ -190,7 +291,7 @@ const Shop = () => {
                           : 'hover:bg-gray-100 text-gray-700'
                       }`}
                     >
-                      {category.name}
+                      {categoryDisplayMap[category.name] || category.name}
                     </button>
                   ))}
                 </div>

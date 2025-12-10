@@ -109,7 +109,7 @@ const productService = {
    */
   getCategories: async () => {
     try {
-      const response = await api.get('/products/categories');
+      const response = await api.get('/categories');
       return response.data;
     } catch (error) {
       console.error('Error fetching categories:', error);

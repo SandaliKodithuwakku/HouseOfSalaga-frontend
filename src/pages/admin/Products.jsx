@@ -384,9 +384,12 @@ const Products = () => {
                 name="sizes"
                 value={formData.sizes}
                 onChange={handleInputChange}
-                placeholder="e.g., XS, S, M, L, XL"
+                placeholder="e.g., XS, S, M, L, XL or 3, 4, 5, 6, 7, 8 or leave empty for no sizes"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                For clothing: XS, S, M, L, XL | For shoes: 3, 4, 5, 6, 7, 8 | For bags: leave empty
+              </p>
             </div>
 
             {/* Colors (comma-separated) */}
@@ -426,24 +429,21 @@ const Products = () => {
               <div className="space-y-3">
                 {variants.map((v, idx) => (
                   <div key={idx} className="grid grid-cols-12 gap-2 items-center">
-                    <select
+                    <input
+                      type="text"
                       value={v.size}
                       onChange={(e) => updateVariant(idx, 'size', e.target.value)}
+                      placeholder="Size (e.g., M or 7)"
                       className="col-span-4 px-3 py-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value="">Select size</option>
-                      {(sizesOptions.length ? sizesOptions : sizesDefault).map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
+                    />
                     <select
                       value={v.color}
                       onChange={(e) => updateVariant(idx, 'color', e.target.value)}
                       className="col-span-5 px-3 py-2 border border-gray-300 rounded-lg"
                     >
-                      <option value="">Select color</option>
-                      {(colorsOptions.length ? colorsOptions : colorsDefault).map((c) => (
-                        <option key={c} value={c}>{c}</option>
+                      <option value="">Select Color</option>
+                      {(colorsOptions.length > 0 ? colorsOptions : colorsDefault).map(color => (
+                        <option key={color} value={color}>{color}</option>
                       ))}
                     </select>
                     <input
@@ -610,30 +610,23 @@ const Products = () => {
               <div className="space-y-3">
                 {variants.map((v, idx) => (
                   <div key={idx} className="grid grid-cols-12 gap-2 items-center">
-                    {/* Size dropdown (use admin-provided options or defaults) */}
-                    <select
+                    <input
+                      type="text"
                       value={v.size}
                       onChange={(e) => updateVariant(idx, 'size', e.target.value)}
+                      placeholder="Size (e.g., M or 7)"
                       className="col-span-4 px-3 py-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value="">Select size</option>
-                      {(sizesOptions.length ? sizesOptions : sizesDefault).map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-
-                    {/* Color dropdown (use admin-provided options or defaults) */}
+                    />
                     <select
                       value={v.color}
                       onChange={(e) => updateVariant(idx, 'color', e.target.value)}
                       className="col-span-5 px-3 py-2 border border-gray-300 rounded-lg"
                     >
-                      <option value="">Select color</option>
-                      {(colorsOptions.length ? colorsOptions : colorsDefault).map((c) => (
-                        <option key={c} value={c}>{c}</option>
+                      <option value="">Select Color</option>
+                      {(colorsOptions.length > 0 ? colorsOptions : colorsDefault).map(color => (
+                        <option key={color} value={color}>{color}</option>
                       ))}
                     </select>
-
                     <input
                       type="number"
                       value={v.stock}
