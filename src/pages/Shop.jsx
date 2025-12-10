@@ -74,7 +74,7 @@ const Shop = () => {
       // Fetch filtered products by category
       fetchProducts();
     }
-  }, [selectedCategory, sortBy, priceRange, pagination.page]);
+  }, [selectedCategory, sortBy, priceRange, pagination.page, selectedColors, selectedSizes]);
 
   // Handle category from URL query parameter
   useEffect(() => {
@@ -131,21 +131,41 @@ const Shop = () => {
           ...categoryObjects
         ]);
         
-        // Apply sorting
-        let sortedProducts = [...fetchedProducts];
-        if (sortBy === 'price-low') {
-          sortedProducts = sortedProducts.sort((a, b) => a.price - b.price);
-        } else if (sortBy === 'price-high') {
-          sortedProducts = sortedProducts.sort((a, b) => b.price - a.price);
-        } else if (sortBy === 'name') {
-          sortedProducts = sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+        // Client-side filtering by color and size
+        let filteredProducts = [...fetchedProducts];
+        
+        if (selectedColors.length > 0) {
+          filteredProducts = filteredProducts.filter(product => {
+            const productColors = product.colors || [];
+            const variantColors = (product.variants || []).map(v => v.color).filter(Boolean);
+            const allColors = [...productColors, ...variantColors].map(c => c.toLowerCase());
+            return selectedColors.some(color => allColors.includes(color.toLowerCase()));
+          });
+        }
+
+        if (selectedSizes.length > 0) {
+          filteredProducts = filteredProducts.filter(product => {
+            const productSizes = product.sizes || [];
+            const variantSizes = (product.variants || []).map(v => v.size).filter(Boolean);
+            const allSizes = [...productSizes, ...variantSizes].map(s => s.toUpperCase());
+            return selectedSizes.some(size => allSizes.includes(size.toUpperCase()));
+          });
         }
         
-        setProducts(sortedProducts);
+        // Apply sorting
+        if (sortBy === 'price-low') {
+          filteredProducts = filteredProducts.sort((a, b) => a.price - b.price);
+        } else if (sortBy === 'price-high') {
+          filteredProducts = filteredProducts.sort((a, b) => b.price - a.price);
+        } else if (sortBy === 'name') {
+          filteredProducts = filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+        }
+        
+        setProducts(filteredProducts);
         setPagination({
           ...pagination,
-          total: fetchedProducts.length,
-          pages: Math.ceil(fetchedProducts.length / pagination.limit),
+          total: filteredProducts.length,
+          pages: Math.ceil(filteredProducts.length / pagination.limit),
         });
       }
     } catch (error) {
@@ -178,6 +198,27 @@ const Shop = () => {
       if (response.success) {
         let fetchedProducts = response.data.products || [];
         
+        // Client-side filtering by color and size
+        if (selectedColors.length > 0) {
+          fetchedProducts = fetchedProducts.filter(product => {
+            // Check if product has any of the selected colors in its colors array or variants
+            const productColors = product.colors || [];
+            const variantColors = (product.variants || []).map(v => v.color).filter(Boolean);
+            const allColors = [...productColors, ...variantColors].map(c => c.toLowerCase());
+            return selectedColors.some(color => allColors.includes(color.toLowerCase()));
+          });
+        }
+
+        if (selectedSizes.length > 0) {
+          fetchedProducts = fetchedProducts.filter(product => {
+            // Check if product has any of the selected sizes in its sizes array or variants
+            const productSizes = product.sizes || [];
+            const variantSizes = (product.variants || []).map(v => v.size).filter(Boolean);
+            const allSizes = [...productSizes, ...variantSizes].map(s => s.toUpperCase());
+            return selectedSizes.some(size => allSizes.includes(size.toUpperCase()));
+          });
+        }
+        
         // Client-side sorting
         if (sortBy === 'price-low') {
           fetchedProducts = fetchedProducts.sort((a, b) => a.price - b.price);
@@ -190,8 +231,8 @@ const Shop = () => {
         setProducts(fetchedProducts);
         setPagination({
           ...pagination,
-          total: response.data.pagination?.total || 0,
-          pages: response.data.pagination?.pages || 0,
+          total: fetchedProducts.length,
+          pages: Math.ceil(fetchedProducts.length / pagination.limit),
         });
 
         // Calculate max price from all products for slider
