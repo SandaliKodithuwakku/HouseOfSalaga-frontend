@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import contactService from '../services/contactService';
 
 const Contact = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,16 +17,15 @@ const Contact = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      // Add your contact form submission logic here
-      console.log('Contact form data:', data);
+      const response = await contactService.sendMessage(data);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Message sent successfully! We\'ll get back to you soon.');
-      reset();
+      if (response.success) {
+        toast.success('Message sent successfully! We\'ll get back to you soon.');
+        reset();
+      }
     } catch (error) {
-      toast.error('Failed to send message. Please try again.');
+      console.error('Error sending message:', error);
+      toast.error(error.response?.data?.message || 'Failed to send message. Please try again.');
     } finally {
       setIsLoading(false);
     }
