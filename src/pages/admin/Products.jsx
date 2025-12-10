@@ -8,6 +8,8 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -173,6 +175,115 @@ const Products = () => {
     }
   };
 
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      description: product.description,
+      category: product.category?.name || product.category,
+      sizes: (product.sizes || []).join(', '),
+      colors: (product.colors || []).join(', '),
+      price: product.price,
+      stock: product.stock,
+      image: null,
+    });
+    setVariants(
+      product.variants && product.variants.length > 0
+        ? product.variants
+        : [{ size: '', color: '', stock: '' }]
+    );
+    setShowEditForm(true);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.name || !formData.category || !formData.price) {
+      toast.error('Please fill all required fields (name, category, price)');
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('category', formData.category);
+      formDataToSend.append('price', formData.price);
+      formDataToSend.append('stock', formData.stock);
+      
+      // Only append image if a new one is selected
+      if (formData.image) {
+        formDataToSend.append('image', formData.image);
+      }
+
+      // Process sizes and colors
+      const sizesArr = (formData.sizes || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      const colorsArr = (formData.colors || '')
+        .split(',')
+        .map(c => c.trim())
+        .filter(Boolean);
+
+      if (sizesArr.length) formDataToSend.append('sizes', JSON.stringify(sizesArr));
+      if (colorsArr.length) formDataToSend.append('colors', JSON.stringify(colorsArr));
+
+      // Process variants
+      const filledVariants = variants
+        .map(v => ({ size: (v.size || '').trim(), color: (v.color || '').trim(), stock: Number(v.stock || 0) }))
+        .filter(v => v.size || v.color || v.stock);
+      if (filledVariants.length) formDataToSend.append('variants', JSON.stringify(filledVariants));
+
+      console.log('Updating product with data:', {
+        name: formData.name,
+        category: formData.category,
+        price: formData.price,
+        stock: formData.stock,
+        sizes: sizesArr,
+        colors: colorsArr,
+        variants: filledVariants
+      });
+
+      await adminService.updateProduct(editingProduct._id, formDataToSend);
+      toast.success('Product updated successfully');
+      setShowEditForm(false);
+      setEditingProduct(null);
+      setFormData({
+        name: '',
+        description: '',
+        category: '',
+        sizes: '',
+        colors: '',
+        price: '',
+        stock: '',
+        image: null,
+      });
+      setVariants([{ size: '', color: '', stock: '' }]);
+      fetchProducts();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      console.error('Error response:', error.response?.data);
+      toast.error(error.response?.data?.message || 'Failed to update product');
+    }
+  };
+
+  const cancelEdit = () => {
+    setShowEditForm(false);
+    setEditingProduct(null);
+    setFormData({
+      name: '',
+      description: '',
+      category: '',
+      sizes: '',
+      colors: '',
+      price: '',
+      stock: '',
+      image: null,
+    });
+    setVariants([{ size: '', color: '', stock: '' }]);
+  };
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -181,6 +292,235 @@ const Products = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-xl">Loading products...</div>
+      </div>
+    );
+  }
+
+  if (showEditForm) {
+    return (
+      <div className="p-8 bg-gray-50 min-h-screen">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">Edit product</h1>
+          
+          <form onSubmit={handleUpdate} className="space-y-6">
+            {/* Product Name */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Product Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
+                required
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows="4"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Category:
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
+                required
+              >
+                <option value="">Select a category</option>
+                <option value="men-fashion">Men Fashion</option>
+                <option value="women-fashion">Women Fashion</option>
+                <option value="shoes-bags">Shoes &amp; Bags</option>
+                <option value="accessories">Accessories</option>
+              </select>
+            </div>
+
+            {/* Price */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Price:
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                  LKR
+                </span>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Sizes (comma-separated) */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Sizes (comma-separated):
+              </label>
+              <input
+                type="text"
+                name="sizes"
+                value={formData.sizes}
+                onChange={handleInputChange}
+                placeholder="e.g., XS, S, M, L, XL"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
+              />
+            </div>
+
+            {/* Colors (comma-separated) */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Colors (comma-separated):
+              </label>
+              <input
+                type="text"
+                name="colors"
+                value={formData.colors}
+                onChange={handleInputChange}
+                placeholder="e.g., Black, White, Red"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
+              />
+            </div>
+
+            {/* Stock */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Base Stock:
+              </label>
+              <input
+                type="number"
+                name="stock"
+                value={formData.stock}
+                onChange={handleInputChange}
+                min="0"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-800"
+              />
+            </div>
+
+            {/* Variants */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">Variants</label>
+              <p className="text-xs text-gray-500 mb-2">Add specific size/color combinations with their own stock.</p>
+              <div className="space-y-3">
+                {variants.map((v, idx) => (
+                  <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                    <select
+                      value={v.size}
+                      onChange={(e) => updateVariant(idx, 'size', e.target.value)}
+                      className="col-span-4 px-3 py-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="">Select size</option>
+                      {(sizesOptions.length ? sizesOptions : sizesDefault).map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={v.color}
+                      onChange={(e) => updateVariant(idx, 'color', e.target.value)}
+                      className="col-span-5 px-3 py-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="">Select color</option>
+                      {(colorsOptions.length ? colorsOptions : colorsDefault).map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      value={v.stock}
+                      onChange={(e) => updateVariant(idx, 'stock', e.target.value)}
+                      placeholder="Stock"
+                      className="col-span-2 px-3 py-2 border border-gray-300 rounded-lg"
+                      min="0"
+                    />
+                    <button type="button" onClick={() => removeVariant(idx)} className="col-span-1 text-red-600">Remove</button>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2">
+                <button type="button" onClick={addVariant} className="px-4 py-2 bg-amber-800 text-white rounded-lg">Add Variant</button>
+              </div>
+            </div>
+
+            {/* Current Image Display */}
+            {editingProduct?.images?.[0]?.url && (
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Current Image:
+                </label>
+                <img 
+                  src={editingProduct.images[0].url} 
+                  alt="Current product" 
+                  className="w-32 h-32 object-cover rounded-lg border"
+                />
+              </div>
+            )}
+
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Update Image (optional):
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={formData.image?.name || ''}
+                  readOnly
+                  placeholder="No new file chosen"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50"
+                />
+                <label className="px-6 py-3 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  Browse
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between pt-4">
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-8 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
+              >
+                <Edit size={18} />
+                Update
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     );
   }
@@ -425,7 +765,7 @@ const Products = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button className="text-blue-600 hover:text-blue-900 mr-3">
+                  <button onClick={() => handleEdit(product)} className="text-blue-600 hover:text-blue-900 mr-3">
                     <Edit size={18} />
                   </button>
                   <button onClick={() => handleDelete(product._id)} className="text-red-600 hover:text-red-900">
