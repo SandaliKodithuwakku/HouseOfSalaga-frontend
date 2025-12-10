@@ -303,19 +303,23 @@ const Shop = () => {
     navigate('/shop');
   };
 
+  const shopBannerImage = 'https://res.cloudinary.com/ds8hmsirb/image/upload/v1765384609/women_fashion_vhaqkh.jpg';
+
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Banner */}
-      <div className="relative h-64 bg-cover bg-center" style={{
-        backgroundImage: 'url(https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200)',
-      }}>
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h1 className="text-4xl md:text-5xl font-serif mb-2">Shop</h1>
-            <p className="text-lg">Explore All Products</p>
-          </div>
+      <section 
+        className="relative h-80 bg-cover flex items-center justify-center"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${shopBannerImage})`,
+          backgroundPosition: '50% 20%'
+        }}
+      >
+        <div className="text-center text-white">
+          <h1 className="text-4xl md:text-5xl font-serif mb-2">Shop</h1>
+          <p className="text-lg">Explore All Products</p>
         </div>
-      </div>
+      </section>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-6">

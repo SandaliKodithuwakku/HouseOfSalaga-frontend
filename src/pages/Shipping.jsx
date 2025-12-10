@@ -98,13 +98,6 @@ const Shipping = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-amber-900 text-white py-2">
-        <div className="max-w-7xl mx-auto px-4 text-center text-sm">
-          Get free shipping on orders over Rs.25,000!
-        </div>
-      </div>
-
       {/* Progress Steps */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
@@ -327,29 +320,6 @@ const Shipping = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Footer Banner */}
-        <div
-          className="mt-12 relative bg-cover bg-center py-16 px-4 rounded-lg"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://res.cloudinary.com/ds8hmsirb/image/upload/v1764774115/footer_xagqdv.jpg')`,
-          }}
-        >
-          <div className="max-w-3xl mx-auto text-center text-white">
-            <h2 className="text-3xl font-serif mb-4">
-              EXPLORE OUR FASHION CATALOG
-            </h2>
-            <p className="text-sm mb-6">
-              Discover timeless pieces crafted with care and elegance. Browse our complete collection and find your perfect style.
-            </p>
-            <Link
-              to="/shop"
-              className="inline-block border-2 border-white text-white px-8 py-3 text-sm font-medium hover:bg-white hover:text-gray-900 transition-all duration-300"
-            >
-              BROWSE COLLECTION →
-            </Link>
           </div>
         </div>
       </div>

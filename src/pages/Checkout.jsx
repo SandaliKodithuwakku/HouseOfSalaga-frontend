@@ -151,13 +151,7 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-amber-900 text-white py-2">
-        <div className="max-w-7xl mx-auto px-4 text-center text-sm">
-          Get free shipping on orders over Rs.25,000!
-        </div>
-      </div>
-
+       
       {/* Progress Steps */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
