@@ -77,25 +77,32 @@ const Navbar = () => {
                       All Products
                     </Link>
                     <Link 
-                      to="/shop?category=new" 
+                      to="/shop?category=men-fashion" 
                       className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
                       onClick={() => setIsShopOpen(false)}
                     >
-                      New Arrivals
+                      Men's Fashion
                     </Link>
                     <Link 
-                      to="/shop?category=bestsellers" 
+                      to="/shop?category=women-fashion" 
                       className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
                       onClick={() => setIsShopOpen(false)}
                     >
-                      Best Sellers
+                      Women's Fashion
                     </Link>
                     <Link 
-                      to="/shop?category=sale" 
+                      to="/shop?category=shoes-bags" 
                       className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
                       onClick={() => setIsShopOpen(false)}
                     >
-                      Sale
+                      Shoes & Bags
+                    </Link>
+                    <Link 
+                      to="/shop?category=accessories" 
+                      className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                      onClick={() => setIsShopOpen(false)}
+                    >
+                      Accessories
                     </Link>
                   </div>
                 )}

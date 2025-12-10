@@ -345,9 +345,9 @@ const Products = () => {
                 required
               >
                 <option value="">Select a category</option>
-                <option value="men-fashion">Men Fashion</option>
-                <option value="women-fashion">Women Fashion</option>
-                <option value="shoes-bags">Shoes &amp; Bags</option>
+                <option value="men-fashion">Men's Fashion</option>
+                <option value="women-fashion">Women's Fashion</option>
+                <option value="shoes-bags">Shoes & Bags</option>
                 <option value="accessories">Accessories</option>
               </select>
             </div>
@@ -574,8 +574,8 @@ const Products = () => {
                 required
               >
                 <option value="">Select a category</option>
-                <option value="men-fashion">Men Fashion</option>
-                <option value="women-fashion">Women Fashion</option>
+                <option value="men-fashion">Men's Fashion</option>
+                <option value="women-fashion">Women's Fashion</option>
                 <option value="shoes-bags">Shoes &amp; Bags</option>
                 <option value="accessories">Accessories</option>
               </select>
