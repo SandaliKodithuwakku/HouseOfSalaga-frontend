@@ -24,6 +24,7 @@ const Shop = () => {
   });
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const colors = [
     { name: 'Black', value: 'black', hex: '#000000' },
@@ -74,11 +75,17 @@ const Shop = () => {
       // Fetch filtered products by category
       fetchProducts();
     }
-  }, [selectedCategory, sortBy, priceRange, pagination.page, selectedColors, selectedSizes]);
+  }, [selectedCategory, sortBy, priceRange, pagination.page, selectedColors, selectedSizes, searchQuery]);
 
   // Handle category from URL query parameter
   useEffect(() => {
     const categorySlug = searchParams.get('category');
+    const search = searchParams.get('search');
+    
+    // Set search query from URL
+    if (search) {
+      setSearchQuery(search);
+    }
     
     if (!categorySlug) {
       // No category in URL, show all products
@@ -133,6 +140,14 @@ const Shop = () => {
         
         // Client-side filtering by color and size
         let filteredProducts = [...fetchedProducts];
+        
+        // Filter by search query
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          filteredProducts = filteredProducts.filter(product => 
+            product.name.toLowerCase().includes(query)
+          );
+        }
         
         if (selectedColors.length > 0) {
           filteredProducts = filteredProducts.filter(product => {
@@ -283,7 +298,9 @@ const Shop = () => {
     setSortBy('featured');
     setSelectedColors([]);
     setSelectedSizes([]);
+    setSearchQuery('');
     setPagination({ ...pagination, page: 1 });
+    navigate('/shop');
   };
 
   return (
@@ -413,6 +430,26 @@ const Shop = () => {
 
           {/* Main Content */}
           <div className="flex-1">
+            {/* Search Bar */}
+            {searchQuery && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-amber-900">
+                    Search results for: <span className="font-semibold">"{searchQuery}"</span>
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      navigate('/shop');
+                    }}
+                    className="text-amber-900 hover:text-amber-700 text-sm font-medium"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Toolbar */}
             <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

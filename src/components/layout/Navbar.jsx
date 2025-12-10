@@ -11,6 +11,8 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -33,6 +35,15 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setIsSearchOpen(false);
+    }
   };
 
   return (
@@ -130,7 +141,10 @@ const Navbar = () => {
 
             {/* Right Icons */}
             <div className="hidden md:flex items-center space-x-6 flex-1 justify-end">
-              <button className="text-gray-800 hover:text-amber-800 transition-colors">
+              <button 
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="text-gray-800 hover:text-amber-800 transition-colors"
+              >
                 <Search className="w-5 h-5" />
               </button>
               <Link to="/cart" className="text-gray-800 hover:text-amber-800 transition-colors relative">
@@ -225,6 +239,38 @@ const Navbar = () => {
             </button>
           </div>
 
+          {/* Search Bar */}
+          {isSearchOpen && (
+            <div className="hidden md:block py-4 border-t border-gray-200">
+              <form onSubmit={handleSearch} className="flex gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for products..."
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-800"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="bg-amber-800 text-white px-6 py-2 rounded-md hover:bg-amber-900 transition-colors"
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSearchOpen(false);
+                    setSearchQuery('');
+                  }}
+                  className="text-gray-600 hover:text-gray-800 px-4"
+                >
+                  Cancel
+                </button>
+              </form>
+            </div>
+          )}
+
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="md:hidden pb-4 border-t border-gray-200 mt-2">
@@ -263,7 +309,10 @@ const Navbar = () => {
                 </Link>
                 <div className="pt-4 border-t border-gray-200 space-y-3">
                   <div className="flex items-center space-x-6">
-                    <button className="text-gray-800 hover:text-amber-800">
+                    <button 
+                      onClick={() => setIsSearchOpen(!isSearchOpen)}
+                      className="text-gray-800 hover:text-amber-800"
+                    >
                       <Search className="w-5 h-5" />
                     </button>
                     <Link to="/cart" className="text-gray-800 hover:text-amber-800 relative">
@@ -275,6 +324,26 @@ const Navbar = () => {
                       )}
                     </Link>
                   </div>
+                  
+                  {/* Mobile Search */}
+                  {isSearchOpen && (
+                    <form onSubmit={handleSearch} className="flex gap-2 pt-2">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search for products..."
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-800"
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        className="bg-amber-800 text-white px-4 py-2 rounded-md hover:bg-amber-900 transition-colors"
+                      >
+                        Go
+                      </button>
+                    </form>
+                  )}
                   
                   {user ? (
                     <div className="space-y-2">
