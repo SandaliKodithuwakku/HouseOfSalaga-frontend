@@ -210,12 +210,14 @@ const Orders = () => {
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-900">{order.items?.[0]?.productId?.name}</p>
-                  {order.items?.length > 1 && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      +{order.items.length - 1} more item{order.items.length - 1 !== 1 ? 's' : ''}
-                    </p>
-                  )}
+                  <div className="space-y-2">
+                    {order.items?.map((item, index) => (
+                      <div key={index} className="text-sm">
+                        <span className="font-medium text-gray-900">{item.productId?.name || 'Unknown Product'}</span>
+                        <span className="text-gray-600"> • Qty: {item.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
                   {order.estimatedDelivery && (
                     <p className="text-sm text-gray-600 mt-2">
                       Estimated Delivery: {new Date(order.estimatedDelivery).toLocaleDateString('en-US', {
