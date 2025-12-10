@@ -24,11 +24,13 @@ const cartService = {
    * Add item to cart
    * @param {string|number} productId - Product ID
    * @param {number} quantity - Quantity to add
+   * @param {string} size - Selected size
+   * @param {string} color - Selected color
    * @returns {Promise} Updated cart
    */
-  addToCart: async (productId, quantity = 1) => {
+  addToCart: async (productId, quantity = 1, size = '', color = '') => {
     try {
-      const response = await api.post('/cart', { productId, quantity });
+      const response = await api.post('/cart', { productId, quantity, size, color });
       return response.data;
     } catch (error) {
       console.error('Error adding to cart:', error);

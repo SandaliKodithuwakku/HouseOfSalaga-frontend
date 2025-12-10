@@ -127,9 +127,10 @@ const ProductDetail = () => {
     if (!product) return;
     
     try {
-      const response = await cartService.addToCart(product._id, quantity);
+      const response = await cartService.addToCart(product._id, quantity, selectedSize, selectedColor);
       if (response.success) {
         toast.success('Added to cart!');
+        navigate('/cart');
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add to cart');

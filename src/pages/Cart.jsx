@@ -214,7 +214,12 @@ const Cart = () => {
                           </h3>
                         </Link>
                         <div className="text-sm text-gray-600 space-y-1 mb-3">
-                          <p>Color: <span className="font-medium">{product.category?.name || 'Default'}</span> | Size: <span className="font-medium">S</span></p>
+                          <p>
+                            {item.color && <span>Color: <span className="font-medium">{item.color}</span></span>}
+                            {item.color && item.size && <span> | </span>}
+                            {item.size && <span>Size: <span className="font-medium">{item.size}</span></span>}
+                            {!item.color && !item.size && <span className="text-gray-400">No variant selected</span>}
+                          </p>
                           <p className="text-lg font-semibold text-gray-900">
                             Rs. {product.price?.toLocaleString()}
                           </p>
