@@ -172,43 +172,55 @@ const Navbar = () => {
                   
                   {isUserMenuOpen && (
                     <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                      <Link 
-                        to="/profile/orders" 
-                        className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        My Orders
-                      </Link>
-                      <Link 
-                        to="/profile/wishlist" 
-                        className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Wishlist
-                      </Link>
-                      <Link 
-                        to="/profile/settings" 
-                        className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Settings
-                      </Link>
-                      {user.role === 'admin' && (
-                        <Link 
-                          to="/admin" 
-                          className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
-                          onClick={() => setIsUserMenuOpen(false)}
-                        >
-                          Admin Dashboard
-                        </Link>
+                      {user.role === 'admin' ? (
+                        <>
+                          <Link 
+                            to="/admin" 
+                            className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Admin Dashboard
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800 flex items-center gap-2 border-t border-gray-200"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link 
+                            to="/profile/orders" 
+                            className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            My Orders
+                          </Link>
+                          <Link 
+                            to="/profile/wishlist" 
+                            className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Wishlist
+                          </Link>
+                          <Link 
+                            to="/profile/settings" 
+                            className="block px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Settings
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800 flex items-center gap-2 border-t border-gray-200"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                          </button>
+                        </>
                       )}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-gray-800 hover:bg-amber-50 hover:text-amber-800 flex items-center gap-2 border-t border-gray-200"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </button>
                     </div>
                   )}
                 </div>
@@ -347,27 +359,39 @@ const Navbar = () => {
                   
                   {user ? (
                     <div className="space-y-2">
-                      <Link to="/profile/orders" className="block text-gray-800 hover:text-amber-800">
-                        My Orders
-                      </Link>
-                      <Link to="/profile/wishlist" className="block text-gray-800 hover:text-amber-800">
-                        Wishlist
-                      </Link>
-                      <Link to="/profile/settings" className="block text-gray-800 hover:text-amber-800">
-                        Settings
-                      </Link>
-                      {user.role === 'admin' && (
-                        <Link to="/admin" className="block text-gray-800 hover:text-amber-800">
-                          Admin Dashboard
-                        </Link>
+                      {user.role === 'admin' ? (
+                        <>
+                          <Link to="/admin" className="block text-gray-800 hover:text-amber-800">
+                            Admin Dashboard
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left text-gray-800 hover:text-amber-800 flex items-center gap-2"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link to="/profile/orders" className="block text-gray-800 hover:text-amber-800">
+                            My Orders
+                          </Link>
+                          <Link to="/profile/wishlist" className="block text-gray-800 hover:text-amber-800">
+                            Wishlist
+                          </Link>
+                          <Link to="/profile/settings" className="block text-gray-800 hover:text-amber-800">
+                            Settings
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left text-gray-800 hover:text-amber-800 flex items-center gap-2"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                          </button>
+                        </>
                       )}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left text-gray-800 hover:text-amber-800 flex items-center gap-2"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </button>
                     </div>
                   ) : (
                     <div className="space-y-2">
