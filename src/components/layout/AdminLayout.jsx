@@ -1,5 +1,5 @@
 import { NavLink, Outlet, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, MessageSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, MessageSquare, LogOut, Mail } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const AdminLayout = () => {
@@ -20,6 +20,7 @@ const AdminLayout = () => {
     { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
     { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Reviews', path: '/admin/reviews', icon: MessageSquare },
+    { name: 'Inquiries', path: '/admin/inquiries', icon: Mail },
   ];
 
   return (

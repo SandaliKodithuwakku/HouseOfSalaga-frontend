@@ -33,6 +33,7 @@ import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
 import AdminUsers from './pages/admin/Users';
 import AdminReviews from './pages/admin/Reviews';
+import Inquiries from './pages/admin/Inquiries';
 
 function App() {
   return (
@@ -108,6 +109,7 @@ function AppContent() {
             <Route path="orders" element={<Orders />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="inquiries" element={<Inquiries />} />
           </Route>
           
           
